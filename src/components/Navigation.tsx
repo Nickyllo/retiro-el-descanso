@@ -48,58 +48,52 @@ const Navigation = () => {
     >
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-20">
-          {/* Logo and Dropdown Menu */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="flex items-center gap-2 group"
-            >
-              <div className={`transition-colors duration-300 ${isScrolled ? "text-primary" : "text-background"}`}>
-                <Leaf className="w-8 h-8" />
-              </div>
-              <span
-                className={`text-xl font-bold font-serif transition-colors duration-300 hidden sm:block ${
-                  isScrolled ? "text-foreground" : "text-background"
-                }`}
-              >
-                Retiro El Descanso
-              </span>
-            </button>
-
-            {/* Navigation Dropdown */}
-            <div className="hidden lg:block">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className={`transition-colors duration-300 ${
-                      isScrolled
-                        ? "text-foreground hover:bg-accent"
-                        : "text-background hover:bg-background/20"
-                    }`}
-                  >
-                    <Menu className="w-4 h-4 mr-2" />
-                    Menú
-                    <ChevronDown className="w-4 h-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 bg-card border-border">
-                  {navLinks.map((link, index) => (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={link.action}
-                      className="cursor-pointer"
-                    >
-                      {link.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+          {/* Logo */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-2 group"
+          >
+            <div className={`transition-colors duration-300 ${isScrolled ? "text-primary" : "text-background"}`}>
+              <Leaf className="w-8 h-8" />
             </div>
-          </div>
+            <span
+              className={`text-xl font-bold font-serif transition-colors duration-300 hidden sm:block ${
+                isScrolled ? "text-foreground" : "text-background"
+              }`}
+            >
+              Retiro El Descanso
+            </span>
+          </button>
 
-          {/* Auth Buttons */}
+          {/* Navigation Dropdown + Auth Buttons */}
           <div className="hidden lg:flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={`transition-colors duration-300 ${
+                    isScrolled
+                      ? "text-foreground hover:bg-accent"
+                      : "text-background hover:bg-background/20"
+                  }`}
+                >
+                  <Menu className="w-4 h-4 mr-2" />
+                  Menú
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-card border-border">
+                {navLinks.map((link, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={link.action}
+                    className="cursor-pointer"
+                  >
+                    {link.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
