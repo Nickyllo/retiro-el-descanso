@@ -52,13 +52,12 @@ const plans = [
 ];
 
 const Pricing = () => {
-  const scrollToReservas = () => {
-    const element = document.getElementById("reservas");
-    element?.scrollIntoView({ behavior: "smooth" });
+  const handleReserva = () => {
+    window.location.href = "/reservaciones";
   };
 
   return (
-    <section id="precios" className="py-24 px-6 bg-gradient-to-b from-card via-background to-accent/10 relative overflow-hidden">
+    <section id="reservas" className="py-24 px-6 bg-gradient-to-b from-card via-background to-accent/10 relative overflow-hidden">
       <div className="absolute inset-0 bg-noise" />
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="text-center mb-20 animate-fade-in">
@@ -106,7 +105,7 @@ const Pricing = () => {
                   ))}
                 </ul>
                 <button
-                  onClick={scrollToReservas}
+                  onClick={handleReserva}
                   className={`w-full py-4 px-8 rounded-full font-semibold text-lg transition-all duration-500 ${
                     plan.highlighted
                       ? 'bg-gradient-to-r from-primary to-secondary text-background hover:shadow-xl hover:scale-105'
