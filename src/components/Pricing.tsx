@@ -84,7 +84,7 @@ const Pricing = () => {
               style={{ animationDelay: `${index * 0.15}s` }}
             >
               {plan.highlighted && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-secondary text-background px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-secondary text-background px-6 py-2 rounded-full text-sm font-bold shadow-lg z-20">
                   Más Popular
                 </div>
               )}
