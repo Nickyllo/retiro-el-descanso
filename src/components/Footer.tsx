@@ -101,9 +101,22 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t-2 border-border/50 pt-8 text-center">
+        <div className="border-t-2 border-border/50 pt-8 text-center space-y-3">
           <p className="text-muted-foreground text-lg">
             © {currentYear} Retiro El Descanso. Todos los derechos reservados.
+          </p>
+          <p className="text-muted-foreground text-base">
+            Hecho por <span className="text-primary font-medium">Nickyllo</span>
+          </p>
+          <p className="text-sm">
+            <a 
+              href="https://nickyllo.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline transition-all"
+            >
+              nickyllo.com
+            </a>
           </p>
         </div>
       </div>
