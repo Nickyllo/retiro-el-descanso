@@ -1,18 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-retreat.jpg";
-import { User, LogOut, Calendar, LayoutDashboard, ChevronDown } from "lucide-react";
 
 const Hero = () => {
-  const { user, signOut, isAdmin, fullName } = useAuth();
   const navigate = useNavigate();
   
   const scrollToSection = (id: string) => {
@@ -26,59 +15,7 @@ const Hero = () => {
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-noise">
-      {/* Auth buttons */}
-      <div className="absolute top-6 right-6 z-20 flex items-center gap-3">
-        {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="text-background hover:bg-background/20 backdrop-blur-sm">
-                <User className="w-4 h-4 mr-2" />
-                {fullName || user.email?.split('@')[0]}
-                <ChevronDown className="w-4 h-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-card border-border">
-              {isAdmin && (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link to="/dashboard" className="flex items-center cursor-pointer">
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
-              <DropdownMenuItem asChild>
-                <Link to="/reservaciones" className="flex items-center cursor-pointer">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Mis Reservas
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
-                <LogOut className="w-4 h-4 mr-2" />
-                Salir
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="flex items-center gap-3">
-            <Link to="/auth">
-              <Button variant="ghost" className="text-background hover:bg-background/20 backdrop-blur-sm">
-                <User className="w-4 h-4 mr-2" />
-                Iniciar Sesión
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button className="bg-background text-foreground hover:bg-background/90">
-                Registrarse
-              </Button>
-            </Link>
-          </div>
-        )}
-      </div>
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
