@@ -102,6 +102,28 @@ export default function Reservations() {
 
       reservationSchema.parse({ packageType, checkIn, guests, specialRequests });
 
+      // Check room availability
+      const { data: availabilityData, error: availabilityError } = await supabase
+        .rpc('check_room_availability', {
+          p_check_in: checkIn,
+          p_check_out: checkOut,
+          p_guests: guests,
+        });
+
+      if (availabilityError) {
+        throw new Error('Error verificando disponibilidad: ' + availabilityError.message);
+      }
+
+      if (!availabilityData.available) {
+        toast({
+          title: 'No hay disponibilidad',
+          description: availabilityData.reason || 'Las fechas seleccionadas no están disponibles',
+          variant: 'destructive',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const reservationCode = generateReservationCode();
       const roomCode = generateRoomCode();
 
