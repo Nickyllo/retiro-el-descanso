@@ -9,13 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Calendar, LayoutDashboard, ChevronDown, Menu, X, Leaf } from "lucide-react";
+import { User, LogOut, Calendar, LayoutDashboard, ChevronDown, Menu, Leaf } from "lucide-react";
 
 const Navigation = () => {
   const { user, signOut, isAdmin, fullName } = useAuth();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,7 +27,6 @@ const Navigation = () => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
-    setIsMobileMenuOpen(false);
   };
 
   const navLinks = [
@@ -68,25 +66,35 @@ const Navigation = () => {
             </span>
           </button>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link, index) => (
-              <button
-                key={index}
-                onClick={link.action}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 ${
-                  isScrolled
-                    ? "text-foreground hover:bg-accent"
-                    : "text-background hover:bg-background/20"
-                }`}
-              >
-                {link.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Auth Buttons */}
+          {/* Desktop Navigation Dropdown */}
           <div className="hidden lg:flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={`transition-colors duration-300 ${
+                    isScrolled
+                      ? "text-foreground hover:bg-accent"
+                      : "text-background hover:bg-background/20"
+                  }`}
+                >
+                  <Menu className="w-4 h-4 mr-2" />
+                  Menú
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48 bg-card border-border">
+                {navLinks.map((link, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={link.action}
+                    className="cursor-pointer"
+                  >
+                    {link.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -158,82 +166,10 @@ const Navigation = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`lg:hidden p-2 transition-colors duration-300 ${
-              isScrolled ? "text-foreground" : "text-background"
-            }`}
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile Spacer (Navigation now in dropdown for both desktop and mobile) */}
+          <div className="lg:hidden" />
         </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden py-6 bg-background/98 backdrop-blur-md rounded-b-2xl shadow-dramatic animate-fade-in">
-            <div className="flex flex-col gap-2">
-              {navLinks.map((link, index) => (
-                <button
-                  key={index}
-                  onClick={link.action}
-                  className="px-4 py-3 text-left text-foreground hover:bg-accent rounded-lg transition-colors duration-300"
-                >
-                  {link.label}
-                </button>
-              ))}
-              <div className="border-t border-border my-2" />
-              {user ? (
-                <>
-                  <Link
-                    to="/dashboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-4 py-3 text-left text-foreground hover:bg-accent rounded-lg transition-colors duration-300"
-                  >
-                    <LayoutDashboard className="w-4 h-4 inline mr-2" />
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/reservaciones"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-4 py-3 text-left text-foreground hover:bg-accent rounded-lg transition-colors duration-300"
-                  >
-                    <Calendar className="w-4 h-4 inline mr-2" />
-                    Mis Reservas
-                  </Link>
-                  <button
-                    onClick={() => {
-                      signOut();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="px-4 py-3 text-left text-destructive hover:bg-accent rounded-lg transition-colors duration-300"
-                  >
-                    <LogOut className="w-4 h-4 inline mr-2" />
-                    Salir
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/auth"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-4 py-3 text-left text-foreground hover:bg-accent rounded-lg transition-colors duration-300"
-                  >
-                    <User className="w-4 h-4 inline mr-2" />
-                    Iniciar Sesión
-                  </Link>
-                  <Link
-                    to="/auth"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-4 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors duration-300 text-center font-medium"
-                  >
-                    Registrarse
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
