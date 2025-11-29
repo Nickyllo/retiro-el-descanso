@@ -63,12 +63,19 @@ const Hero = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Link to="/auth">
-            <Button variant="ghost" className="text-background hover:bg-background/20 backdrop-blur-sm">
-              <User className="w-4 h-4 mr-2" />
-              Iniciar Sesión
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/auth">
+              <Button variant="ghost" className="text-background hover:bg-background/20 backdrop-blur-sm">
+                <User className="w-4 h-4 mr-2" />
+                Iniciar Sesión
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button className="bg-background text-foreground hover:bg-background/90">
+                Registrarse
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
       <div 
