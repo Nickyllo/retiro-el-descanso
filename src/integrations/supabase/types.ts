@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      hotel_capacity: {
+        Row: {
+          created_at: string
+          id: string
+          max_guests_per_room: number
+          max_rooms: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_guests_per_room?: number
+          max_rooms?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_guests_per_room?: number
+          max_rooms?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -46,6 +70,7 @@ export type Database = {
           guests: number | null
           id: string
           package_type: string
+          reminder_sent: boolean | null
           reservation_code: string | null
           room_code: string | null
           special_requests: string | null
@@ -60,6 +85,7 @@ export type Database = {
           guests?: number | null
           id?: string
           package_type: string
+          reminder_sent?: boolean | null
           reservation_code?: string | null
           room_code?: string | null
           special_requests?: string | null
@@ -74,6 +100,7 @@ export type Database = {
           guests?: number | null
           id?: string
           package_type?: string
+          reminder_sent?: boolean | null
           reservation_code?: string | null
           room_code?: string | null
           special_requests?: string | null
@@ -106,6 +133,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_room_availability: {
+        Args: {
+          p_check_in: string
+          p_check_out: string
+          p_exclude_reservation_id?: string
+          p_guests: number
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
