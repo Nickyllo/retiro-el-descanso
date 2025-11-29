@@ -2,12 +2,20 @@ import meditationImage from "@/assets/gallery-meditation.jpg";
 import diningImage from "@/assets/gallery-dining.jpg";
 import yogaImage from "@/assets/gallery-yoga.jpg";
 import roomImage from "@/assets/gallery-room.jpg";
+import spaImage from "@/assets/gallery-spa.jpg";
+import poolImage from "@/assets/gallery-pool.jpg";
+import gardenImage from "@/assets/gallery-garden.jpg";
+import loungeImage from "@/assets/gallery-lounge.jpg";
 
 const images = [
   { src: meditationImage, alt: "Sala de meditación" },
   { src: diningImage, alt: "Comedor" },
   { src: yogaImage, alt: "Deck de yoga" },
-  { src: roomImage, alt: "Habitación" }
+  { src: roomImage, alt: "Habitación" },
+  { src: spaImage, alt: "Spa y masajes" },
+  { src: poolImage, alt: "Piscina natural" },
+  { src: gardenImage, alt: "Jardín zen" },
+  { src: loungeImage, alt: "Sala de lectura" }
 ];
 
 const Gallery = () => {

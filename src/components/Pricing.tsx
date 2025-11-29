@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 const plans = [
   {
     name: "Día de Descanso",
-    price: "$150.000",
-    period: "por día",
-    description: "Perfecto para una escapada rápida",
+    price: "No disponible",
+    period: "",
+    description: "Temporalmente no disponible",
     features: [
       "Acceso a todas las instalaciones",
       "Clase de yoga o meditación",
@@ -15,11 +15,12 @@ const plans = [
       "Uso de áreas comunes",
       "Senderos ecológicos"
     ],
-    highlighted: false
+    highlighted: false,
+    available: false
   },
   {
     name: "Fin de Semana Completo",
-    price: "$450.000",
+    price: "$ 1.000.000",
     period: "2 días / 1 noche",
     description: "La opción más popular",
     features: [
@@ -30,13 +31,14 @@ const plans = [
       "Acceso al spa",
       "Actividades al aire libre"
     ],
-    highlighted: true
+    highlighted: true,
+    available: true
   },
   {
     name: "Retiro Semanal",
-    price: "$1.200.000",
-    period: "7 días / 6 noches",
-    description: "Transformación profunda",
+    price: "No disponible",
+    period: "",
+    description: "Temporalmente no disponible",
     features: [
       "Habitación premium",
       "Plan alimenticio personalizado",
@@ -47,7 +49,8 @@ const plans = [
       "Consulta de bienestar",
       "Kit de bienvenida"
     ],
-    highlighted: false
+    highlighted: false,
+    available: false
   }
 ];
 
@@ -106,13 +109,16 @@ const Pricing = () => {
                 </ul>
                 <button
                   onClick={handleReserva}
+                  disabled={!plan.available}
                   className={`w-full py-4 px-8 rounded-full font-semibold text-lg transition-all duration-500 ${
-                    plan.highlighted
+                    !plan.available
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+                      : plan.highlighted
                       ? 'bg-gradient-to-r from-primary to-secondary text-background hover:shadow-xl hover:scale-105'
                       : 'border-2 border-primary text-primary hover:bg-primary hover:text-background'
                   }`}
                 >
-                  Reservar Ahora
+                  {plan.available ? 'Reservar Ahora' : 'No Disponible'}
                 </button>
               </CardContent>
             </Card>
