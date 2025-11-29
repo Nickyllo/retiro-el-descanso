@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Users, Leaf, ArrowLeft, LogOut } from 'lucide-react';
+import { Calendar, Users, Leaf, ArrowLeft, LogOut, X } from 'lucide-react';
 import { z } from 'zod';
+import { BoardingPass } from '@/components/BoardingPass';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const packages = [
   { id: 'basico', name: 'Paquete Básico', price: 150000, nights: 2 },
@@ -38,6 +40,9 @@ export default function Reservations() {
   const [specialRequests, setSpecialRequests] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [myReservations, setMyReservations] = useState<any[]>([]);
+  const [showBoardingPass, setShowBoardingPass] = useState(false);
+  const [currentReservation, setCurrentReservation] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -48,8 +53,27 @@ export default function Reservations() {
   useEffect(() => {
     if (user) {
       fetchReservations();
+      fetchUserProfile();
     }
   }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    if (data) setUserProfile(data);
+  };
+
+  const generateReservationCode = () => {
+    return 'RD' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  };
+
+  const generateRoomCode = () => {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  };
 
   const fetchReservations = async () => {
     const { data } = await supabase
@@ -78,19 +102,36 @@ export default function Reservations() {
 
       reservationSchema.parse({ packageType, checkIn, guests, specialRequests });
 
-      const { error } = await supabase.from('reservations').insert({
-        user_id: user.id,
-        package_type: packageType,
-        check_in: checkIn,
-        check_out: checkOut,
-        guests,
-        special_requests: specialRequests || null,
-        total_price: selectedPkg ? selectedPkg.price * guests : 0,
-      });
+      const reservationCode = generateReservationCode();
+      const roomCode = generateRoomCode();
+
+      const { data: newReservation, error } = await supabase
+        .from('reservations')
+        .insert({
+          user_id: user.id,
+          package_type: packageType,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests,
+          special_requests: specialRequests || null,
+          total_price: selectedPkg ? selectedPkg.price * guests : 0,
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
       toast({ title: 'Reserva creada exitosamente' });
+      
+      // Show boarding pass
+      setCurrentReservation({
+        ...newReservation,
+        reservationCode,
+        roomCode,
+        packageName: selectedPkg?.name,
+      });
+      setShowBoardingPass(true);
+
       setPackageType('');
       setCheckIn('');
       setGuests(1);
@@ -253,6 +294,30 @@ export default function Reservations() {
           </div>
         </div>
       </main>
+
+      {/* Boarding Pass Dialog */}
+      <Dialog open={showBoardingPass} onOpenChange={setShowBoardingPass}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-background">
+          <button
+            onClick={() => setShowBoardingPass(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          {currentReservation && userProfile && (
+            <BoardingPass
+              reservationCode={currentReservation.reservationCode}
+              roomCode={currentReservation.roomCode}
+              packageName={currentReservation.packageName}
+              checkIn={currentReservation.check_in}
+              checkOut={currentReservation.check_out}
+              guests={currentReservation.guests}
+              guestName={userProfile.full_name || user?.email || 'Huésped'}
+              qrData={`RESERVA:${currentReservation.reservationCode}|ROOM:${currentReservation.roomCode}`}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
