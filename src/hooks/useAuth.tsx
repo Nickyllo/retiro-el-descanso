@@ -8,7 +8,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   fullName: string | null;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, phone: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -65,16 +65,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(!!data);
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, phone: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: { full_name: fullName }
+        data: { full_name: fullName, phone }
       }
     });
+    
+    // Update profile with phone number after signup
+    if (data.user && !error) {
+      await supabase
+        .from('profiles')
+        .update({ phone })
+        .eq('id', data.user.id);
+    }
+    
     return { error };
   };
 

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Leaf, ArrowLeft, Users, Calendar, Banknote, Pencil, Trash2, X } from 'lucide-react';
+import { Leaf, ArrowLeft, Users, Calendar, Banknote, Pencil, Trash2, X, User, Mail, Phone } from 'lucide-react';
 
 interface Reservation {
   id: string;
@@ -36,11 +36,15 @@ const formatCOP = (value: number) => {
 };
 
 export default function Dashboard() {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, isAdmin, fullName } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, revenue: 0 });
+  const [profile, setProfile] = useState({ phone: '', full_name: '' });
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   
   // Edit modal state
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
@@ -57,16 +61,68 @@ export default function Dashboard() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      navigate('/');
+    if (!loading && !user) {
+      navigate('/auth');
     }
-  }, [user, loading, isAdmin, navigate]);
+  }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user && isAdmin) {
-      fetchAllReservations();
+    if (user) {
+      fetchProfile();
+      if (isAdmin) {
+        fetchAllReservations();
+      }
     }
   }, [user, isAdmin]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('phone, full_name')
+      .eq('id', user.id)
+      .single();
+    
+    if (data) {
+      setProfile(data);
+    }
+  };
+
+  const updateProfile = async () => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('profiles')
+      .update({ phone: profile.phone, full_name: profile.full_name })
+      .eq('id', user.id);
+    
+    if (error) {
+      toast({ title: 'Error al actualizar perfil', variant: 'destructive' });
+    } else {
+      toast({ title: 'Perfil actualizado correctamente' });
+      setIsEditingProfile(false);
+    }
+  };
+
+  const changePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({ title: 'Las contraseñas no coinciden', variant: 'destructive' });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({ title: 'La contraseña debe tener al menos 6 caracteres', variant: 'destructive' });
+      return;
+    }
+    
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    
+    if (error) {
+      toast({ title: 'Error al cambiar contraseña', variant: 'destructive' });
+    } else {
+      toast({ title: 'Contraseña actualizada correctamente' });
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+  };
 
   const fetchAllReservations = async () => {
     const { data: reservationsData } = await supabase
@@ -217,8 +273,12 @@ export default function Dashboard() {
     );
   };
 
-  if (loading || !isAdmin) {
+  if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -228,14 +288,103 @@ export default function Dashboard() {
           <Link to="/" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <Leaf className="w-6 h-6 text-primary" />
-            <span className="font-serif text-lg">Dashboard Admin</span>
+            <span className="font-serif text-lg">Dashboard</span>
           </Link>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {/* User Profile Section */}
+        <div className="bg-card rounded-xl border border-border/50 p-6 mb-8">
+          <h2 className="font-serif text-2xl mb-6">Mi Perfil</h2>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <User className="w-5 h-5 text-primary" />
+                <div className="flex-1">
+                  <Label className="text-sm text-muted-foreground">Nombre</Label>
+                  {isEditingProfile ? (
+                    <Input
+                      value={profile.full_name}
+                      onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="font-medium">{profile.full_name || fullName || 'Sin nombre'}</p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-primary" />
+                <div className="flex-1">
+                  <Label className="text-sm text-muted-foreground">Correo</Label>
+                  <p className="font-medium">{user.email}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-primary" />
+                <div className="flex-1">
+                  <Label className="text-sm text-muted-foreground">Teléfono</Label>
+                  {isEditingProfile ? (
+                    <Input
+                      value={profile.phone || ''}
+                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                      placeholder="+57 300 123 4567"
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="font-medium">{profile.phone || 'No registrado'}</p>
+                  )}
+                </div>
+              </div>
+              
+              {isEditingProfile ? (
+                <div className="flex gap-2">
+                  <Button onClick={updateProfile}>Guardar Cambios</Button>
+                  <Button variant="outline" onClick={() => setIsEditingProfile(false)}>Cancelar</Button>
+                </div>
+              ) : (
+                <Button onClick={() => setIsEditingProfile(true)}>Editar Perfil</Button>
+              )}
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="font-serif text-lg">Cambiar Contraseña</h3>
+              <div className="space-y-3">
+                <div>
+                  <Label>Nueva Contraseña</Label>
+                  <Input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                </div>
+                <div>
+                  <Label>Confirmar Contraseña</Label>
+                  <Input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repetir contraseña"
+                  />
+                </div>
+                <Button onClick={changePassword} disabled={!newPassword || !confirmPassword}>
+                  Actualizar Contraseña
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Admin Section - Only visible to admins */}
+        {isAdmin && (
+          <>
+            <h2 className="font-serif text-2xl mb-6">Panel de Administración</h2>
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-card rounded-xl p-6 border border-border/50">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-lg">
@@ -268,11 +417,11 @@ export default function Dashboard() {
                 <p className="font-serif text-2xl">{formatCOP(stats.revenue)}</p>
               </div>
             </div>
-          </div>
-        </div>
+            </div>
+            </div>
 
-        {/* Reservations Table */}
-        <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
+            {/* Reservations Table */}
+            <div className="bg-card rounded-xl border border-border/50 overflow-hidden">
           <div className="p-4 border-b border-border/50">
             <h2 className="font-serif text-xl">Todas las Reservas</h2>
           </div>
@@ -338,9 +487,11 @@ export default function Dashboard() {
                   </tr>
                 )}
               </tbody>
-            </table>
-          </div>
-        </div>
+              </table>
+            </div>
+            </div>
+          </>
+        )}
       </main>
 
       {/* Edit Modal */}

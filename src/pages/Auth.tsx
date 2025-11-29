@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Leaf, Mail, Lock, User } from 'lucide-react';
+import { Leaf, Mail, Lock, User, Phone } from 'lucide-react';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -15,6 +15,7 @@ const loginSchema = z.object({
 
 const signUpSchema = loginSchema.extend({
   fullName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  phone: z.string().min(10, 'El teléfono debe tener al menos 10 dígitos'),
 });
 
 export default function Auth() {
@@ -22,6 +23,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -54,8 +56,8 @@ export default function Auth() {
           navigate('/');
         }
       } else {
-        const validated = signUpSchema.parse({ email, password, fullName });
-        const { error } = await signUp(validated.email, validated.password, validated.fullName);
+        const validated = signUpSchema.parse({ email, password, fullName, phone });
+        const { error } = await signUp(validated.email, validated.password, validated.fullName, validated.phone);
         if (error) {
           toast({
             title: 'Error al registrarse',
@@ -98,20 +100,37 @@ export default function Auth() {
         <div className="bg-card rounded-2xl shadow-elegant p-8 border border-border/50">
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nombre completo</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Tu nombre"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="pl-10"
-                  />
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Nombre completo</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Tu nombre"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Teléfono</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+57 300 123 4567"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="space-y-2">
