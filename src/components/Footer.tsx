@@ -9,7 +9,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-card to-background border-t-2 border-border/50 py-16 px-6 relative overflow-hidden">
+    <footer className="bg-gradient-to-b from-card to-background border-t-2 border-border/50 pt-16 pb-24 px-6 relative overflow-hidden">
       <div className="absolute inset-0 bg-noise" />
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
