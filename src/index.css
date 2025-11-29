@@ -1,102 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 40 20% 97%;
-    --foreground: 30 15% 15%;
-
-    --card: 38 25% 95%;
-    --card-foreground: 30 15% 15%;
-
-    --popover: 40 20% 98%;
-    --popover-foreground: 30 15% 15%;
-
-    --primary: 140 40% 45%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 35 35% 75%;
-    --secondary-foreground: 30 15% 15%;
-
-    --muted: 40 15% 88%;
-    --muted-foreground: 30 10% 45%;
-
-    --accent: 140 50% 55%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 40 20% 85%;
-    --input: 40 20% 90%;
-    --ring: 140 40% 45%;
-
+    /* Nature-inspired color palette */
+    --background: 42 25% 96%;           /* Soft cream */
+    --foreground: 150 15% 20%;          /* Deep forest green */
+    
+    --card: 40 30% 98%;                 /* Warm white */
+    --card-foreground: 150 15% 20%;
+    
+    --popover: 40 30% 98%;
+    --popover-foreground: 150 15% 20%;
+    
+    --primary: 139 24% 54%;             /* Sage green */
+    --primary-foreground: 42 25% 96%;
+    
+    --secondary: 357 43% 59%;           /* Terracotta */
+    --secondary-foreground: 42 25% 96%;
+    
+    --muted: 135 12% 82%;               /* Soft gray-green */
+    --muted-foreground: 150 10% 35%;
+    
+    --accent: 45 46% 88%;               /* Warm beige */
+    --accent-foreground: 150 15% 20%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 42 25% 96%;
+    
+    --border: 135 12% 85%;
+    --input: 135 12% 85%;
+    --ring: 139 24% 54%;
+    
     --radius: 0.75rem;
     
-    --hero-gradient: linear-gradient(135deg, hsl(140 35% 40%) 0%, hsl(140 45% 50%) 100%);
-    --section-gradient: linear-gradient(180deg, hsl(40 20% 97%) 0%, hsl(38 25% 95%) 100%);
-    --card-shadow: 0 4px 20px -4px hsl(140 40% 45% / 0.15);
-    --hover-shadow: 0 8px 30px -6px hsl(140 40% 45% / 0.25);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Custom design tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(139 24% 54%) 0%, hsl(150 20% 45%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(42 25% 96%) 0%, hsl(45 30% 92%) 100%);
+    --gradient-overlay: linear-gradient(135deg, hsl(139 24% 54% / 0.9) 0%, hsl(150 15% 20% / 0.85) 100%);
+    
+    --shadow-soft: 0 4px 20px -2px hsl(150 15% 20% / 0.08);
+    --shadow-elegant: 0 12px 40px -8px hsl(150 15% 20% / 0.12);
+    --shadow-dramatic: 0 20px 60px -12px hsl(150 15% 20% / 0.18);
+    
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 40 30% 98%;
+    --sidebar-foreground: 150 15% 20%;
+    --sidebar-primary: 139 24% 54%;
+    --sidebar-primary-foreground: 42 25% 96%;
+    --sidebar-accent: 45 46% 88%;
+    --sidebar-accent-foreground: 150 15% 20%;
+    --sidebar-border: 135 12% 85%;
+    --sidebar-ring: 139 24% 54%;
   }
 
   .dark {
-    --background: 30 20% 12%;
-    --foreground: 40 20% 95%;
+    --background: 150 15% 12%;
+    --foreground: 42 25% 96%;
+    
+    --card: 150 12% 16%;
+    --card-foreground: 42 25% 96%;
+    
+    --popover: 150 12% 16%;
+    --popover-foreground: 42 25% 96%;
+    
+    --primary: 139 24% 54%;
+    --primary-foreground: 150 15% 12%;
+    
+    --secondary: 357 43% 59%;
+    --secondary-foreground: 42 25% 96%;
+    
+    --muted: 150 10% 22%;
+    --muted-foreground: 135 12% 72%;
+    
+    --accent: 139 20% 25%;
+    --accent-foreground: 42 25% 96%;
+    
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 42 25% 96%;
+    
+    --border: 150 10% 25%;
+    --input: 150 10% 25%;
+    --ring: 139 24% 54%;
 
-    --card: 30 15% 15%;
-    --card-foreground: 40 20% 95%;
-
-    --popover: 30 20% 10%;
-    --popover-foreground: 40 20% 95%;
-
-    --primary: 140 45% 50%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 35 25% 25%;
-    --secondary-foreground: 40 20% 95%;
-
-    --muted: 30 15% 20%;
-    --muted-foreground: 40 10% 60%;
-
-    --accent: 140 50% 55%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 30 15% 25%;
-    --input: 30 15% 25%;
-    --ring: 140 45% 50%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar dark */
+    --sidebar-background: 150 12% 16%;
+    --sidebar-foreground: 42 25% 96%;
+    --sidebar-primary: 139 24% 54%;
+    --sidebar-primary-foreground: 150 15% 12%;
+    --sidebar-accent: 139 20% 25%;
+    --sidebar-accent-foreground: 42 25% 96%;
+    --sidebar-border: 150 10% 25%;
+    --sidebar-ring: 139 24% 54%;
   }
 }
 
@@ -104,43 +105,94 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
-
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    @apply font-serif;
   }
 }
 
 @layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-in-out;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.6s ease-out;
-  }
-
+  /* Animations */
   @keyframes fadeIn {
     from {
       opacity: 0;
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
+      transform: translateY(0);
     }
   }
 
   @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(40px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes floatGentle {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 1s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.6s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: floatGentle 3s ease-in-out infinite;
+  }
+
+  /* Custom effects */
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-noise {
+    position: relative;
+  }
+
+  .bg-noise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    pointer-events: none;
   }
 }

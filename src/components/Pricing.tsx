@@ -58,57 +58,63 @@ const Pricing = () => {
   };
 
   return (
-    <section id="precios" className="py-20 px-4 bg-gradient-to-b from-card to-background">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+    <section id="precios" className="py-24 px-6 bg-gradient-to-b from-card via-background to-accent/10 relative overflow-hidden">
+      <div className="absolute inset-0 bg-noise" />
+      <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="text-center mb-20 animate-fade-in">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-gradient">
             Planes y Precios
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Elige el plan que mejor se adapte a tus necesidades
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed">
+            Inversiones en tu bienestar que transforman vidas
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {plans.map((plan, index) => (
             <Card 
               key={index}
-              className={`relative animate-slide-up ${
+              className={`group relative overflow-hidden animate-slide-up transition-all duration-500 ${
                 plan.highlighted 
-                  ? 'border-primary shadow-lg scale-105 z-10' 
-                  : 'border-border'
+                  ? 'border-2 border-primary shadow-dramatic scale-105 z-10 bg-gradient-to-br from-card to-primary/5' 
+                  : 'border-2 border-border/50 hover:border-primary/30 bg-card'
               }`}
-              style={{ animationDelay: `${index * 0.1}s` }}
+              style={{ animationDelay: `${index * 0.15}s` }}
             >
               {plan.highlighted && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-secondary text-background px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                   Más Popular
                 </div>
               )}
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
-                <CardDescription className="mb-4">{plan.description}</CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-primary">{plan.price}</span>
-                  <span className="text-muted-foreground ml-2">{plan.period}</span>
+              <CardHeader className="text-center pb-10 pt-12">
+                <CardTitle className="text-3xl mb-3 font-bold">{plan.name}</CardTitle>
+                <CardDescription className="mb-6 text-lg">{plan.description}</CardDescription>
+                <div className="mt-6">
+                  <span className="text-5xl font-bold text-gradient">{plan.price}</span>
+                  <span className="text-muted-foreground ml-3 text-lg">{plan.period}</span>
                 </div>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-8">
+              <CardContent className="px-8 pb-10">
+                <ul className="space-y-4 mb-10">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start">
-                      <Check className="w-5 h-5 text-primary mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-card-foreground">{feature}</span>
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mr-4 mt-0.5 flex-shrink-0">
+                        <Check className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="text-card-foreground leading-relaxed">{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Button 
-                  className="w-full"
-                  variant={plan.highlighted ? "default" : "outline"}
+                <button
                   onClick={scrollToReservas}
+                  className={`w-full py-4 px-8 rounded-full font-semibold text-lg transition-all duration-500 ${
+                    plan.highlighted
+                      ? 'bg-gradient-to-r from-primary to-secondary text-background hover:shadow-xl hover:scale-105'
+                      : 'border-2 border-primary text-primary hover:bg-primary hover:text-background'
+                  }`}
                 >
                   Reservar Ahora
-                </Button>
+                </button>
               </CardContent>
             </Card>
           ))}

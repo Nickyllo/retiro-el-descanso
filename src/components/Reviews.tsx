@@ -75,51 +75,52 @@ const Reviews = () => {
   };
 
   return (
-    <section id="calificanos" className="py-20 px-4 bg-card">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-card-foreground">
+    <section id="calificanos" className="py-24 px-6 bg-gradient-to-b from-card via-accent/10 to-card relative overflow-hidden">
+      <div className="absolute inset-0 bg-noise" />
+      <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="text-center mb-20 animate-fade-in">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-gradient">
             Calificaciones
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Lo que dicen nuestros huéspedes
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed">
+            Testimonios de quienes han vivido la experiencia
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="border-border animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
-              <CardContent className="p-6">
-                <div className="flex gap-1 mb-4">
+            <Card key={index} className="border-2 border-border/50 bg-card hover:border-primary/30 transition-all duration-500 hover:shadow-elegant animate-slide-up" style={{ animationDelay: `${index * 0.15}s` }}>
+              <CardContent className="p-8">
+                <div className="flex gap-2 mb-6 justify-center">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-5 h-5 ${
+                      className={`w-6 h-6 ${
                         i < testimonial.rating
-                          ? "fill-primary text-primary"
-                          : "text-muted-foreground"
+                          ? "fill-secondary text-secondary"
+                          : "text-muted"
                       }`}
                     />
                   ))}
                 </div>
-                <p className="text-card-foreground mb-4 italic">"{testimonial.comment}"</p>
-                <p className="text-muted-foreground font-semibold">- {testimonial.name}</p>
+                <p className="text-card-foreground mb-6 text-lg leading-relaxed italic text-center">"{testimonial.comment}"</p>
+                <p className="text-muted-foreground font-semibold text-center text-lg">— {testimonial.name}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <Card className="max-w-2xl mx-auto border-border animate-fade-in">
-          <CardContent className="p-8">
-            <h3 className="text-2xl font-semibold mb-6 text-center text-card-foreground">
-              Déjanos tu Calificación
+        <Card className="max-w-3xl mx-auto border-2 border-border/50 bg-card animate-fade-in shadow-elegant">
+          <CardContent className="p-10">
+            <h3 className="text-3xl font-bold mb-8 text-center text-gradient">
+              Comparte Tu Experiencia
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               <div>
-                <label className="block text-sm font-medium mb-2 text-card-foreground">
-                  Calificación
+                <label className="block text-lg font-semibold mb-4 text-card-foreground">
+                  Tu Calificación
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-3 justify-center">
                   {[1, 2, 3, 4, 5].map((value) => (
                     <button
                       key={value}
@@ -127,12 +128,12 @@ const Reviews = () => {
                       onClick={() => setRating(value)}
                       onMouseEnter={() => setHoveredRating(value)}
                       onMouseLeave={() => setHoveredRating(0)}
-                      className="transition-transform hover:scale-110"
+                      className="transition-all hover:scale-125 duration-300"
                     >
                       <Star
-                        className={`w-8 h-8 ${
+                        className={`w-10 h-10 ${
                           value <= (hoveredRating || rating)
-                            ? "fill-primary text-primary"
+                            ? "fill-secondary text-secondary"
                             : "text-muted-foreground"
                         }`}
                       />
@@ -142,7 +143,7 @@ const Reviews = () => {
               </div>
 
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2 text-card-foreground">
+                <label htmlFor="name" className="block text-lg font-semibold mb-3 text-card-foreground">
                   Nombre
                 </label>
                 <Input
@@ -152,11 +153,12 @@ const Reviews = () => {
                   placeholder="Tu nombre"
                   required
                   maxLength={100}
+                  className="text-lg py-6"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2 text-card-foreground">
+                <label htmlFor="email" className="block text-lg font-semibold mb-3 text-card-foreground">
                   Email
                 </label>
                 <Input
@@ -167,30 +169,35 @@ const Reviews = () => {
                   placeholder="tu@email.com"
                   required
                   maxLength={255}
+                  className="text-lg py-6"
                 />
               </div>
 
               <div>
-                <label htmlFor="comment" className="block text-sm font-medium mb-2 text-card-foreground">
-                  Comentario
+                <label htmlFor="comment" className="block text-lg font-semibold mb-3 text-card-foreground">
+                  Tu Comentario
                 </label>
                 <Textarea
                   id="comment"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  placeholder="Cuéntanos sobre tu experiencia..."
-                  rows={4}
+                  placeholder="Cuéntanos sobre tu experiencia transformadora..."
+                  rows={5}
                   required
                   maxLength={500}
+                  className="text-lg"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-2">
                   {comment.length}/500 caracteres
                 </p>
               </div>
 
-              <Button type="submit" className="w-full">
+              <button
+                type="submit"
+                className="w-full py-5 px-8 bg-gradient-to-r from-primary to-secondary text-background font-bold text-lg rounded-full hover:shadow-xl hover:scale-105 transition-all duration-500"
+              >
                 Enviar Calificación
-              </Button>
+              </button>
             </form>
           </CardContent>
         </Card>

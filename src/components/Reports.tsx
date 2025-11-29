@@ -57,27 +57,27 @@ const Reports = () => {
   };
 
   return (
-    <section id="denuncias" className="py-20 px-4 bg-background">
-      <div className="container mx-auto max-w-4xl">
+    <section id="denuncias" className="py-24 px-6 bg-background relative overflow-hidden">
+      <div className="absolute inset-0 bg-noise" />
+      <div className="container mx-auto max-w-4xl relative z-10">
         <div className="text-center mb-16 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-6">
-            <AlertTriangle className="w-8 h-8 text-destructive" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-destructive/10 mb-8 shadow-soft">
+            <AlertTriangle className="w-10 h-10 text-destructive" />
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-gradient">
             Canal de Denuncias
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Tu seguridad y bienestar son nuestra prioridad. Si presenciaste alguna situación irregular, 
-            repórtala de manera confidencial.
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto font-light leading-relaxed">
+            Tu seguridad y bienestar son nuestra máxima prioridad
           </p>
         </div>
 
-        <Card className="border-border animate-slide-up">
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+        <Card className="border-2 border-border/50 bg-card animate-slide-up shadow-elegant">
+          <CardContent className="p-10">
+            <form onSubmit={handleSubmit} className="space-y-8">
               <div>
-                <label htmlFor="report-name" className="block text-sm font-medium mb-2 text-foreground">
-                  Nombre (opcional para denuncias anónimas)
+                <label htmlFor="report-name" className="block text-lg font-semibold mb-3 text-foreground">
+                  Nombre <span className="text-sm font-normal text-muted-foreground">(opcional para denuncias anónimas)</span>
                 </label>
                 <Input
                   id="report-name"
@@ -85,11 +85,12 @@ const Reports = () => {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tu nombre"
                   maxLength={100}
+                  className="text-lg py-6"
                 />
               </div>
 
               <div>
-                <label htmlFor="report-email" className="block text-sm font-medium mb-2 text-foreground">
+                <label htmlFor="report-email" className="block text-lg font-semibold mb-3 text-foreground">
                   Email de contacto
                 </label>
                 <Input
@@ -100,15 +101,16 @@ const Reports = () => {
                   placeholder="tu@email.com"
                   required
                   maxLength={255}
+                  className="text-lg py-6"
                 />
               </div>
 
               <div>
-                <label htmlFor="category" className="block text-sm font-medium mb-2 text-foreground">
+                <label htmlFor="category" className="block text-lg font-semibold mb-3 text-foreground">
                   Categoría
                 </label>
                 <Select value={category} onValueChange={setCategory} required>
-                  <SelectTrigger id="category">
+                  <SelectTrigger id="category" className="text-lg py-6">
                     <SelectValue placeholder="Selecciona una categoría" />
                   </SelectTrigger>
                   <SelectContent>
@@ -123,7 +125,7 @@ const Reports = () => {
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium mb-2 text-foreground">
+                <label htmlFor="description" className="block text-lg font-semibold mb-3 text-foreground">
                   Descripción detallada
                 </label>
                 <Textarea
@@ -134,22 +136,26 @@ const Reports = () => {
                   rows={6}
                   required
                   maxLength={1000}
+                  className="text-lg"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-2">
                   {description.length}/1000 caracteres
                 </p>
               </div>
 
-              <div className="bg-muted/50 p-4 rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Nota:</strong> Todas las denuncias son tratadas con la máxima confidencialidad. 
+              <div className="bg-accent/50 p-6 rounded-xl border-2 border-border/50">
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">Confidencialidad garantizada:</strong> Todas las denuncias son tratadas con absoluta discreción. 
                   Tu información será utilizada únicamente para investigar el incidente reportado.
                 </p>
               </div>
 
-              <Button type="submit" className="w-full" variant="destructive">
-                Enviar Denuncia
-              </Button>
+              <button
+                type="submit"
+                className="w-full py-5 px-8 bg-destructive text-destructive-foreground font-bold text-lg rounded-full hover:shadow-xl hover:scale-105 transition-all duration-500"
+              >
+                Enviar Denuncia Confidencial
+              </button>
             </form>
           </CardContent>
         </Card>
