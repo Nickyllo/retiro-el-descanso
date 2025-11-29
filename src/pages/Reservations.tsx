@@ -123,7 +123,34 @@ export default function Reservations() {
 
       if (error) throw error;
 
-      toast({ title: 'Reserva creada exitosamente' });
+      // Send email with boarding pass
+      try {
+        const profile = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        await supabase.functions.invoke('send-reservation-email', {
+          body: {
+            guestEmail: user.email,
+            guestName: profile?.data?.full_name || user.email?.split('@')[0] || 'Huésped',
+            packageName: selectedPkg?.name || packageType,
+            reservationCode: reservationCode,
+            roomCode: roomCode,
+            checkIn: checkIn,
+            checkOut: checkOut,
+            guests: guests,
+            totalPrice: selectedPkg ? selectedPkg.price * guests : 0,
+          },
+        });
+        console.log('Reservation email sent successfully');
+      } catch (emailError) {
+        console.error('Error sending email:', emailError);
+        // Don't fail the reservation if email fails
+      }
+
+      toast({ title: 'Reserva creada exitosamente', description: 'Revisa tu correo para ver tu pase de acceso' });
       
       // Show boarding pass
       setCurrentReservation({
