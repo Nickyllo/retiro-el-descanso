@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +13,15 @@ import { User, LogOut, Calendar, LayoutDashboard, ChevronDown } from "lucide-rea
 
 const Hero = () => {
   const { user, signOut, isAdmin, fullName } = useAuth();
+  const navigate = useNavigate();
   
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleReserva = () => {
+    navigate("/reservaciones");
   };
 
   return (
@@ -83,7 +88,7 @@ const Hero = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-slide-up" style={{ animationDelay: "0.4s" }}>
             <button 
-              onClick={() => scrollToSection("reservas")}
+              onClick={handleReserva}
               className="group relative px-10 py-4 bg-background text-foreground font-medium text-lg rounded-full overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-2xl"
             >
               <span className="relative z-10">Reserva Ahora</span>
