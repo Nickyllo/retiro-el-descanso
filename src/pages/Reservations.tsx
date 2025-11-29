@@ -114,10 +114,12 @@ export default function Reservations() {
         throw new Error('Error verificando disponibilidad: ' + availabilityError.message);
       }
 
-      if (!availabilityData.available) {
+      const availability = availabilityData as { available: boolean; reason?: string };
+
+      if (!availability.available) {
         toast({
           title: 'No hay disponibilidad',
-          description: availabilityData.reason || 'Las fechas seleccionadas no están disponibles',
+          description: availability.reason || 'Las fechas seleccionadas no están disponibles',
           variant: 'destructive',
         });
         setIsSubmitting(false);
