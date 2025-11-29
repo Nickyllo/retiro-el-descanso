@@ -1,7 +1,12 @@
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-retreat.jpg";
+import { User, LogOut } from "lucide-react";
 
 const Hero = () => {
+  const { user, signOut } = useAuth();
+  
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
@@ -9,6 +14,33 @@ const Hero = () => {
 
   return (
     <section className="relative h-screen w-full overflow-hidden bg-noise">
+      {/* Auth buttons */}
+      <div className="absolute top-6 right-6 z-20 flex items-center gap-3">
+        {user ? (
+          <>
+            <Link to="/reservaciones">
+              <Button variant="ghost" className="text-background hover:bg-background/20 backdrop-blur-sm">
+                Mis Reservas
+              </Button>
+            </Link>
+            <Button 
+              variant="ghost" 
+              className="text-background hover:bg-background/20 backdrop-blur-sm"
+              onClick={signOut}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Salir
+            </Button>
+          </>
+        ) : (
+          <Link to="/auth">
+            <Button variant="ghost" className="text-background hover:bg-background/20 backdrop-blur-sm">
+              <User className="w-4 h-4 mr-2" />
+              Iniciar Sesión
+            </Button>
+          </Link>
+        )}
+      </div>
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroImage})` }}
