@@ -372,7 +372,7 @@ export default function Reservations() {
           >
             <X className="h-4 w-4" />
           </button>
-          {currentReservation && userProfile && (
+          {currentReservation ? (
             <BoardingPass
               reservationCode={currentReservation.reservation_code}
               roomCode={currentReservation.room_code}
@@ -380,10 +380,10 @@ export default function Reservations() {
               checkIn={currentReservation.check_in}
               checkOut={currentReservation.check_out}
               guests={currentReservation.guests}
-              guestName={userProfile.full_name || user?.email || 'Huésped'}
+              guestName={userProfile?.full_name || user?.email || 'Huésped'}
               qrData={`RESERVA:${currentReservation.reservation_code}|ROOM:${currentReservation.room_code}`}
             />
-          )}
+          ) : null}
         </DialogContent>
       </Dialog>
     </div>
