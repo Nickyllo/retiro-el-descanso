@@ -158,7 +158,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailHtml = generateBoardingPassHTML(data);
 
     const emailResponse = await resend.emails.send({
-      from: "Retiro El Descanso <onboarding@resend.dev>",
+      from: "Retiro El Descanso <reservas@nickyllo.com>",
       to: [data.guestEmail],
       subject: `Tu Pase de Acceso - Reserva ${data.reservationCode}`,
       html: emailHtml,
