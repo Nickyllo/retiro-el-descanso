@@ -79,7 +79,7 @@ serve(async (req) => {
 
         // Send reminder email
         const { error: emailError } = await resend.emails.send({
-          from: "Retiro El Descanso <onboarding@resend.dev>",
+          from: "Retiro El Descanso <reservas@nickyllo.com>",
           to: [user.email],
           subject: "Recordatorio: Tu retiro comienza mañana 🌿",
           html: `
