@@ -1,6 +1,7 @@
 /**
  * DOM Protector - Sistema de protección contra eliminación de elementos del DOM
  * Detecta cuando elementos protegidos son eliminados y los restaura automáticamente
+ * Modo completo: protege toda la página automáticamente
  */
 
 interface ProtectedElement {
@@ -10,6 +11,7 @@ interface ProtectedElement {
   parentSelector: string | null;
   insertPosition: 'first' | 'last' | 'before' | 'after';
   referenceSelector?: string;
+  siblingIndex?: number;
 }
 
 class DOMProtector {
@@ -17,6 +19,9 @@ class DOMProtector {
   private observer: MutationObserver | null = null;
   private isRestoring: boolean = false;
   private enabled: boolean = true;
+  private fullPageProtection: boolean = false;
+  private pageSnapshot: string | null = null;
+  private elementSnapshots: Map<string, { html: string; parentSelector: string; siblingIndex: number }> = new Map();
 
   constructor() {
     this.initObserver();
@@ -33,7 +38,6 @@ class DOMProtector {
       }
     });
 
-    // Observar todo el documento
     if (document.body) {
       this.startObserving();
     } else {
@@ -56,20 +60,23 @@ class DOMProtector {
 
       const element = node as HTMLElement;
       
+      // Si está en modo protección completa, restaurar cualquier elemento
+      if (this.fullPageProtection) {
+        this.restoreFromSnapshot(element, parent);
+        return;
+      }
+
       // Verificar si el elemento removido coincide con algún selector protegido
       for (const [id, protected_] of this.protectedElements) {
-        // Verificar si el nodo removido coincide con el selector
         if (this.matchesSelector(element, protected_.selector)) {
           console.warn(`[DOMProtector] Elemento protegido eliminado: ${protected_.selector}`);
           this.restoreElement(id, protected_, parent);
           return;
         }
 
-        // Verificar si algún hijo del nodo removido coincide
         const matchingChild = element.querySelector(protected_.selector);
         if (matchingChild) {
           console.warn(`[DOMProtector] Elemento protegido eliminado (como hijo): ${protected_.selector}`);
-          // En este caso, el padre fue eliminado, necesitamos restaurar en el ancestro correcto
           this.restoreElement(id, protected_, null);
         }
       }
@@ -84,20 +91,120 @@ class DOMProtector {
     }
   }
 
-  private restoreElement(id: string, protected_: ProtectedElement, originalParent: HTMLElement | null): void {
-    // Evitar loops de restauración
+  private getElementIdentifier(element: HTMLElement): string {
+    const parts: string[] = [];
+    
+    if (element.id) {
+      return `#${element.id}`;
+    }
+    
+    if (element.getAttribute('data-protected')) {
+      return `[data-protected="${element.getAttribute('data-protected')}"]`;
+    }
+    
+    parts.push(element.tagName.toLowerCase());
+    
+    if (element.className && typeof element.className === 'string') {
+      const classes = element.className.split(' ').filter(c => c.trim()).slice(0, 3);
+      if (classes.length) {
+        parts.push(`.${classes.join('.')}`);
+      }
+    }
+    
+    return parts.join('');
+  }
+
+  private getSiblingIndex(element: HTMLElement): number {
+    if (!element.parentElement) return 0;
+    return Array.from(element.parentElement.children).indexOf(element);
+  }
+
+  private restoreFromSnapshot(element: HTMLElement, originalParent: HTMLElement): void {
     this.isRestoring = true;
 
     setTimeout(() => {
       try {
-        // Verificar si el elemento ya existe (puede haber sido restaurado o nunca fue eliminado)
+        const identifier = this.getElementIdentifier(element);
+        const snapshot = this.elementSnapshots.get(identifier);
+        
+        if (snapshot) {
+          // Verificar si ya existe
+          const existing = document.querySelector(identifier);
+          if (existing) {
+            this.isRestoring = false;
+            return;
+          }
+
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = snapshot.html;
+          const newElement = wrapper.firstElementChild as HTMLElement;
+
+          if (!newElement) {
+            this.isRestoring = false;
+            return;
+          }
+
+          let targetParent: HTMLElement | null = null;
+          
+          if (snapshot.parentSelector) {
+            targetParent = document.querySelector(snapshot.parentSelector) as HTMLElement;
+          }
+          
+          if (!targetParent && originalParent && document.body.contains(originalParent)) {
+            targetParent = originalParent;
+          }
+          
+          if (!targetParent) {
+            targetParent = document.body;
+          }
+
+          // Insertar en la posición original
+          const children = Array.from(targetParent.children);
+          if (snapshot.siblingIndex < children.length) {
+            targetParent.insertBefore(newElement, children[snapshot.siblingIndex]);
+          } else {
+            targetParent.appendChild(newElement);
+          }
+
+          console.info(`[DOMProtector] Elemento restaurado desde snapshot: ${identifier}`);
+        } else {
+          // Restaurar usando el HTML del elemento eliminado
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = element.outerHTML;
+          const newElement = wrapper.firstElementChild as HTMLElement;
+
+          if (newElement && originalParent && document.body.contains(originalParent)) {
+            originalParent.appendChild(newElement);
+            
+            // Guardar snapshot para futuras restauraciones
+            this.elementSnapshots.set(identifier, {
+              html: element.outerHTML,
+              parentSelector: this.getElementIdentifier(originalParent),
+              siblingIndex: this.getSiblingIndex(element),
+            });
+            
+            console.info(`[DOMProtector] Elemento restaurado y registrado: ${identifier}`);
+          }
+        }
+      } catch (error) {
+        console.error(`[DOMProtector] Error al restaurar desde snapshot:`, error);
+      } finally {
+        this.isRestoring = false;
+      }
+    }, 0);
+  }
+
+  private restoreElement(id: string, protected_: ProtectedElement, originalParent: HTMLElement | null): void {
+    this.isRestoring = true;
+
+    setTimeout(() => {
+      try {
         const existing = document.querySelector(protected_.selector);
         if (existing) {
           this.isRestoring = false;
           return;
         }
 
-        // Intentar usar el constructor primero
         let newElement: HTMLElement | null = null;
         
         try {
@@ -106,7 +213,6 @@ class DOMProtector {
           console.warn(`[DOMProtector] Constructor falló, usando HTML original:`, constructorError);
         }
 
-        // Si el constructor falla, usar el HTML original
         if (!newElement && protected_.originalHTML) {
           const wrapper = document.createElement('div');
           wrapper.innerHTML = protected_.originalHTML;
@@ -119,7 +225,6 @@ class DOMProtector {
           return;
         }
 
-        // Determinar dónde insertar el elemento
         let targetParent: HTMLElement | null = null;
 
         if (protected_.parentSelector) {
@@ -136,7 +241,6 @@ class DOMProtector {
           return;
         }
 
-        // Insertar según la posición especificada
         switch (protected_.insertPosition) {
           case 'first':
             targetParent.insertBefore(newElement, targetParent.firstChild);
@@ -167,8 +271,6 @@ class DOMProtector {
         }
 
         console.info(`[DOMProtector] Elemento restaurado exitosamente: ${protected_.selector}`);
-
-        // Actualizar el HTML original con el nuevo elemento
         protected_.originalHTML = newElement.outerHTML;
 
       } catch (error) {
@@ -180,9 +282,65 @@ class DOMProtector {
   }
 
   /**
+   * Activa la protección completa de toda la página
+   * Captura un snapshot de todos los elementos y los restaura si son eliminados
+   */
+  public enableFullPageProtection(): void {
+    if (this.fullPageProtection) return;
+    
+    this.fullPageProtection = true;
+    this.pageSnapshot = document.body.innerHTML;
+    
+    // Capturar snapshots de todos los elementos importantes
+    this.captureAllElements(document.body);
+    
+    console.info(`[DOMProtector] Protección completa de página activada - ${this.elementSnapshots.size} elementos protegidos`);
+  }
+
+  private captureAllElements(container: HTMLElement, depth: number = 0): void {
+    if (depth > 10) return; // Limitar profundidad para evitar loops
+
+    Array.from(container.children).forEach((child, index) => {
+      if (child.nodeType !== Node.ELEMENT_NODE) return;
+      
+      const element = child as HTMLElement;
+      const identifier = this.getElementIdentifier(element);
+      
+      // Evitar duplicados y elementos muy genéricos
+      if (!this.elementSnapshots.has(identifier) && identifier.length > 3) {
+        this.elementSnapshots.set(identifier, {
+          html: element.outerHTML,
+          parentSelector: this.getElementIdentifier(container),
+          siblingIndex: index,
+        });
+      }
+      
+      // Recurrir a los hijos
+      if (element.children.length > 0) {
+        this.captureAllElements(element, depth + 1);
+      }
+    });
+  }
+
+  /**
+   * Desactiva la protección completa de página
+   */
+  public disableFullPageProtection(): void {
+    this.fullPageProtection = false;
+    this.pageSnapshot = null;
+    this.elementSnapshots.clear();
+    console.info(`[DOMProtector] Protección completa de página desactivada`);
+  }
+
+  /**
+   * Verifica si la protección completa está activa
+   */
+  public isFullPageProtectionEnabled(): boolean {
+    return this.fullPageProtection;
+  }
+
+  /**
    * Registra un elemento para protegerlo contra eliminación
-   * @param id - Identificador único para este elemento protegido
-   * @param options - Opciones de configuración
    */
   public register(
     id: string,
@@ -194,14 +352,11 @@ class DOMProtector {
       referenceSelector?: string;
     }
   ): void {
-    // Capturar el HTML original del elemento si existe
     const existingElement = document.querySelector(options.selector) as HTMLElement;
     const originalHTML = existingElement?.outerHTML || null;
 
-    // Determinar el selector del padre si no se proporciona
     let parentSelector = options.parentSelector || null;
     if (!parentSelector && existingElement?.parentElement) {
-      // Intentar crear un selector único para el padre
       const parent = existingElement.parentElement;
       if (parent.id) {
         parentSelector = `#${parent.id}`;
@@ -220,6 +375,7 @@ class DOMProtector {
       parentSelector,
       insertPosition: options.insertPosition || 'last',
       referenceSelector: options.referenceSelector,
+      siblingIndex: existingElement ? this.getSiblingIndex(existingElement) : 0,
     });
 
     console.info(`[DOMProtector] Elemento registrado: ${options.selector} (ID: ${id})`);
@@ -227,7 +383,6 @@ class DOMProtector {
 
   /**
    * Desregistra un elemento protegido
-   * @param id - Identificador del elemento a desregistrar
    */
   public unregister(id: string): void {
     if (this.protectedElements.delete(id)) {
@@ -258,6 +413,13 @@ class DOMProtector {
   }
 
   /**
+   * Lista todos los snapshots capturados
+   */
+  public listSnapshots(): string[] {
+    return Array.from(this.elementSnapshots.keys());
+  }
+
+  /**
    * Destruye el protector y libera recursos
    */
   public destroy(): void {
@@ -266,6 +428,9 @@ class DOMProtector {
       this.observer = null;
     }
     this.protectedElements.clear();
+    this.elementSnapshots.clear();
+    this.fullPageProtection = false;
+    this.pageSnapshot = null;
     console.info(`[DOMProtector] Protector destruido`);
   }
 }
