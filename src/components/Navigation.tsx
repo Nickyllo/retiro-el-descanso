@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useDOMProtection } from "@/hooks/useDOMProtection";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +13,13 @@ import {
 import { User, LogOut, Calendar, LayoutDashboard, ChevronDown, Menu, Leaf } from "lucide-react";
 
 const Navigation = () => {
+  // Proteger la navegación contra eliminación del DOM
+  const navRef = useDOMProtection<HTMLElement>({
+    id: 'main-navigation',
+    selector: 'nav[data-protected="navigation"]',
+    parentSelector: 'body',
+    insertPosition: 'first',
+  });
   const { user, signOut, isAdmin, fullName } = useAuth();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -40,6 +48,8 @@ const Navigation = () => {
 
   return (
     <nav
+      ref={navRef}
+      data-protected="navigation"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
           ? "bg-background/95 backdrop-blur-md shadow-elegant"
