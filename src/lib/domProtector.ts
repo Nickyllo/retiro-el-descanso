@@ -124,17 +124,52 @@ class DOMProtector {
 
     setTimeout(() => {
       try {
-        const identifier = this.getElementIdentifier(element);
-        const snapshot = this.elementSnapshots.get(identifier);
+        // Buscar snapshot por cualquier método posible
+        let snapshot = null;
+        let matchedKey = '';
         
-        if (snapshot) {
-          // Verificar si ya existe
-          const existing = document.querySelector(identifier);
-          if (existing) {
-            this.isRestoring = false;
-            return;
+        // Método 1: Buscar por path único
+        const siblingIndex = originalParent ? Array.from(originalParent.children).indexOf(element) : 0;
+        const uniquePath = this.createUniquePath(element, siblingIndex >= 0 ? siblingIndex : 0);
+        snapshot = this.elementSnapshots.get(uniquePath);
+        matchedKey = uniquePath;
+        
+        // Método 2: Buscar por ID si existe
+        if (!snapshot && element.id) {
+          for (const [key, value] of this.elementSnapshots) {
+            if (key.includes(`#${element.id}`)) {
+              snapshot = value;
+              matchedKey = key;
+              break;
+            }
           }
+        }
+        
+        // Método 3: Buscar por data-protected
+        if (!snapshot && element.getAttribute('data-protected')) {
+          const dataAttr = element.getAttribute('data-protected');
+          for (const [key, value] of this.elementSnapshots) {
+            if (key.includes(`[data-protected="${dataAttr}"]`)) {
+              snapshot = value;
+              matchedKey = key;
+              break;
+            }
+          }
+        }
+        
+        // Método 4: Buscar por HTML similar
+        if (!snapshot) {
+          const elementHTML = element.outerHTML;
+          for (const [key, value] of this.elementSnapshots) {
+            if (value.html === elementHTML || value.html.includes(element.innerHTML.substring(0, 100))) {
+              snapshot = value;
+              matchedKey = key;
+              break;
+            }
+          }
+        }
 
+        if (snapshot) {
           const wrapper = document.createElement('div');
           wrapper.innerHTML = snapshot.html;
           const newElement = wrapper.firstElementChild as HTMLElement;
@@ -146,7 +181,9 @@ class DOMProtector {
 
           let targetParent: HTMLElement | null = null;
           
-          if (snapshot.parentSelector) {
+          if (snapshot.parentSelector === 'body') {
+            targetParent = document.body;
+          } else if (snapshot.parentSelector) {
             targetParent = document.querySelector(snapshot.parentSelector) as HTMLElement;
           }
           
@@ -166,28 +203,20 @@ class DOMProtector {
             targetParent.appendChild(newElement);
           }
 
-          console.info(`[DOMProtector] Elemento restaurado desde snapshot: ${identifier}`);
+          console.info(`[DOMProtector] Elemento restaurado: ${matchedKey}`);
         } else {
-          // Restaurar usando el HTML del elemento eliminado
+          // Restaurar usando el HTML del elemento eliminado directamente
           const wrapper = document.createElement('div');
           wrapper.innerHTML = element.outerHTML;
           const newElement = wrapper.firstElementChild as HTMLElement;
 
           if (newElement && originalParent && document.body.contains(originalParent)) {
             originalParent.appendChild(newElement);
-            
-            // Guardar snapshot para futuras restauraciones
-            this.elementSnapshots.set(identifier, {
-              html: element.outerHTML,
-              parentSelector: this.getElementIdentifier(originalParent),
-              siblingIndex: this.getSiblingIndex(element),
-            });
-            
-            console.info(`[DOMProtector] Elemento restaurado y registrado: ${identifier}`);
+            console.info(`[DOMProtector] Elemento restaurado desde HTML original`);
           }
         }
       } catch (error) {
-        console.error(`[DOMProtector] Error al restaurar desde snapshot:`, error);
+        console.error(`[DOMProtector] Error al restaurar:`, error);
       } finally {
         this.isRestoring = false;
       }
@@ -298,28 +327,60 @@ class DOMProtector {
   }
 
   private captureAllElements(container: HTMLElement, depth: number = 0): void {
-    if (depth > 10) return; // Limitar profundidad para evitar loops
+    // Sin límite de profundidad - capturar absolutamente todo
+    if (depth > 50) return; // Solo límite de seguridad para evitar stack overflow
 
     Array.from(container.children).forEach((child, index) => {
       if (child.nodeType !== Node.ELEMENT_NODE) return;
       
       const element = child as HTMLElement;
-      const identifier = this.getElementIdentifier(element);
       
-      // Evitar duplicados y elementos muy genéricos
-      if (!this.elementSnapshots.has(identifier) && identifier.length > 3) {
-        this.elementSnapshots.set(identifier, {
-          html: element.outerHTML,
-          parentSelector: this.getElementIdentifier(container),
-          siblingIndex: index,
-        });
-      }
+      // Crear identificador único usando path completo
+      const uniqueId = this.createUniquePath(element, index);
       
-      // Recurrir a los hijos
+      // Capturar TODOS los elementos sin excepción
+      this.elementSnapshots.set(uniqueId, {
+        html: element.outerHTML,
+        parentSelector: container === document.body ? 'body' : this.createUniquePath(container, this.getSiblingIndex(container)),
+        siblingIndex: index,
+      });
+      
+      // Recurrir a todos los hijos
       if (element.children.length > 0) {
         this.captureAllElements(element, depth + 1);
       }
     });
+  }
+
+  private createUniquePath(element: HTMLElement, index: number): string {
+    const parts: string[] = [];
+    let current: HTMLElement | null = element;
+    let currentIndex = index;
+    
+    while (current && current !== document.body && parts.length < 10) {
+      let identifier = current.tagName.toLowerCase();
+      
+      if (current.id) {
+        identifier = `#${current.id}`;
+        parts.unshift(identifier);
+        break;
+      }
+      
+      if (current.getAttribute('data-protected')) {
+        identifier = `[data-protected="${current.getAttribute('data-protected')}"]`;
+        parts.unshift(identifier);
+        break;
+      }
+      
+      // Usar índice para unicidad
+      identifier += `:nth-child(${currentIndex + 1})`;
+      parts.unshift(identifier);
+      
+      currentIndex = current.parentElement ? this.getSiblingIndex(current) : 0;
+      current = current.parentElement;
+    }
+    
+    return parts.join(' > ');
   }
 
   /**
